@@ -1,15 +1,22 @@
-import styles from '../styles/LogIn.module.css';
+import React, { useContext } from 'react';
+import styles from '../styles/LogIn.module.scss';
+import Header from '../components/header';
+import Footer from '../components/footer';
+import { userStore } from '../stores/user-store';
 
 export default function Index() {
-  return (
-    <div className={styles.container}>
-      <main className={styles.main}>
-        <input type="email" placeholder="Email" />
-        <input type="password" placeholder="Password" />
-        <button className="pure-button">{'Sign in'}</button>
-      </main>
+  const userContext = useContext(userStore);
+  const { store } = userContext;
 
-      <footer className={styles.footer}>Open Source on GitHub</footer>
-    </div>
+  return (
+    <>
+      <Header />
+      <div className={styles.container}>
+        <main className={styles.main}>
+          {store.user ? `Welcome ${store.user.display_name}` : 'Click Sign In'}
+        </main>
+      </div>
+      <Footer />
+    </>
   );
 }
