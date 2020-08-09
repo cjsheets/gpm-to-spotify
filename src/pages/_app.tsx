@@ -1,9 +1,10 @@
-import '../styles/globals.css';
+import '../styles/globals.scss';
 import 'purecss/build/base.css';
 import 'purecss/build/buttons.css';
 import 'purecss/build/forms-nr.css';
 import type { AppProps } from 'next/app';
-import UserContextProvider from '../contexts/user-context-provider';
+import { UserContextProvider } from '../stores/user-store';
+import { SpotifyContextProvider } from '../stores/spotify-store';
 import Head from 'next/head';
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -13,7 +14,18 @@ function MyApp({ Component, pageProps }: AppProps) {
         <title>Spotify Admin Panel</title>
       </Head>
       <UserContextProvider>
-        <Component {...pageProps} />
+        <SpotifyContextProvider>
+          <div
+            style={{
+              minHeight: '100vh',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+            }}
+          >
+            <Component {...pageProps} />
+          </div>
+        </SpotifyContextProvider>
       </UserContextProvider>
     </>
   );
