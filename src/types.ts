@@ -9,3 +9,9 @@ export enum HTTPMethod {
 }
 
 export type User = SpotifyApi.CurrentUsersProfileResponse;
+
+export interface SessionInfo {
+  user: SpotifyApi.CurrentUsersProfileResponse;
+  token: string;
+  tokenExpires: number;
+}
