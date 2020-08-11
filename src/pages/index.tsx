@@ -14,6 +14,9 @@ export default function Index() {
       <div className={styles.container}>
         <main className={styles.main}>
           {store.user ? `Welcome ${store.user.display_name}` : 'Click Sign In'}
+          <br />
+          <br />
+          {store.user && <a href="/import/1">{'Import a Google Play Music playlist!'}</a>}
         </main>
       </div>
       <Footer />
