@@ -1,18 +1,17 @@
 import '../styles/globals.scss';
-import 'purecss/build/base.css';
-import 'purecss/build/buttons.css';
-import 'purecss/build/forms-nr.css';
 import type { AppProps } from 'next/app';
+import { ZeitProvider, CssBaseline } from '@zeit-ui/react';
 import { UserContextProvider } from '../stores/user-store';
 import { SpotifyContextProvider } from '../stores/spotify-store';
 import Head from 'next/head';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <>
+    <ZeitProvider>
       <Head>
         <title>Spotify Admin Panel</title>
       </Head>
+      <CssBaseline />
       <UserContextProvider>
         <SpotifyContextProvider>
           <div
@@ -27,7 +26,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           </div>
         </SpotifyContextProvider>
       </UserContextProvider>
-    </>
+    </ZeitProvider>
   );
 }
 

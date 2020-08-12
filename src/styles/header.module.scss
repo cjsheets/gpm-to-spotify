@@ -1,21 +1,13 @@
 .container {
-  flex: 0 0 50px;
+  flex: 0 0 100px;
   display: flex;
-  background-color: #05264c;
-  color: #ffffff;
   align-items: center;
-  padding: 0 20px;
+  padding: 0 50px;
 
   & a {
-    color: #ffffff;
     text-decoration: none;
   }
 }
-
-.logo {
-  flex: 1 1 auto;
-}
-
 .signIn {
   flex: 1 1 auto;
   display: flex;
