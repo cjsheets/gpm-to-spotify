@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import styles from '../styles/LogIn.module.scss';
 import Header from '../components/header';
 import Footer from '../components/footer';
@@ -21,7 +21,7 @@ export default function LogIn() {
 
   const [tokenInfo, setTokenInfo] = useState<Partial<SessionInfo>>({});
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Call spotifyApi.getMe() with the token from the auth redirect
     const search = window.location.hash.replace('#', '?');
     const urlParams = new URLSearchParams(search);
@@ -39,7 +39,7 @@ export default function LogIn() {
 
   const router = useRouter();
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Cache the token and GET /me results for use on future routes
     const user = fetchResult.data;
     if (user) {

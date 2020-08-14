@@ -15,3 +15,11 @@ export interface SessionInfo {
   token: string;
   tokenExpires: number;
 }
+
+export type Song = {
+  album: string;
+  artist: string;
+  title: string;
+};
+
+export type Playlist = Song[];

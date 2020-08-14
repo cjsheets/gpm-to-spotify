@@ -1,6 +1,6 @@
 import React, { createContext, useReducer, Dispatch } from 'react';
 import SpotifyWebApi from 'spotify-web-api-js';
-import { User } from '../types';
+import { User, Playlist } from '../types';
 
 interface SpotifyContext {
   store: SpotifyStore;
@@ -11,11 +11,12 @@ interface SpotifyStore {
   token?: string | null;
   tokenExpires?: number;
   spotifyApi: SpotifyWebApi.SpotifyWebApiJs;
+  importedPlaylists?: { [playlistName: string]: Playlist };
 }
 
 type ActionTypes =
   | { type: 'setToken'; token: string | null; tokenExpires?: number }
-  | { type: 'getMe' };
+  | { type: 'setImportedPlaylists'; importedPlaylists: { [playlistName: string]: Playlist } };
 
 const initialStore = { spotifyApi: new SpotifyWebApi() };
 
@@ -31,9 +32,9 @@ const userContextReducer = (store: SpotifyStore, action: ActionTypes): SpotifySt
       store.spotifyApi.setAccessToken(action.token);
       return { ...store, token: action.token, tokenExpires: action.tokenExpires };
 
-    case 'getMe':
+    case 'setImportedPlaylists':
       store.spotifyApi.getMe();
-      return { ...store };
+      return { ...store, importedPlaylists: action.importedPlaylists };
 
     default:
       throw new Error();
