@@ -11,14 +11,20 @@ interface SpotifyStore {
   token?: string | null;
   tokenExpires?: number;
   spotifyApi: SpotifyWebApi.SpotifyWebApiJs;
-  importedPlaylists?: { [playlistName: string]: Playlist };
+  importedPlaylists: { [playlistName: string]: Playlist };
+  selectedPlaylist: string;
 }
 
 type ActionTypes =
   | { type: 'setToken'; token: string | null; tokenExpires?: number }
-  | { type: 'setImportedPlaylists'; importedPlaylists: { [playlistName: string]: Playlist } };
+  | { type: 'setImportedPlaylists'; importedPlaylists: { [playlistName: string]: Playlist } }
+  | { type: 'choosePlaylist'; selectedPlaylist: string };
 
-const initialStore = { spotifyApi: new SpotifyWebApi() };
+const initialStore = {
+  spotifyApi: new SpotifyWebApi(),
+  importedPlaylists: {},
+  selectedPlaylist: '',
+};
 
 const spotifyStore = createContext<SpotifyContext>({
   store: initialStore,
@@ -33,8 +39,12 @@ const userContextReducer = (store: SpotifyStore, action: ActionTypes): SpotifySt
       return { ...store, token: action.token, tokenExpires: action.tokenExpires };
 
     case 'setImportedPlaylists':
-      store.spotifyApi.getMe();
-      return { ...store, importedPlaylists: action.importedPlaylists };
+      console.log('set playlists', action.importedPlaylists);
+      const selectedPlaylist = Object.keys(action.importedPlaylists)[0];
+      return { ...store, importedPlaylists: action.importedPlaylists, selectedPlaylist };
+
+    case 'choosePlaylist':
+      return { ...store, selectedPlaylist: action.selectedPlaylist };
 
     default:
       throw new Error();

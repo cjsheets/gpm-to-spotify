@@ -3,8 +3,12 @@ import { useToasts, Loading } from '@zeit-ui/react';
 import { findAndParseCsvs, flattenArray, songArrayReducer } from '../utility/parse-playlists';
 import { Playlist } from '../types';
 import { useRouter } from 'next/router';
+import { spotifyStore } from '../stores/spotify-store';
 
 export default function DropArea({ children }: React.PropsWithChildren<{}>) {
+  const spotifyContext = useContext(spotifyStore);
+  const { dispatch: spotifyDispatch } = spotifyContext;
+
   const [parsingState, setParsingState] = useState<'parsing' | 'done'>();
   const [, setToast] = useToasts();
 
@@ -34,6 +38,7 @@ export default function DropArea({ children }: React.PropsWithChildren<{}>) {
         [playlistName: string]: Playlist;
       };
       window.sessionStorage.setItem('importedPlaylists', JSON.stringify(importedPlaylists));
+      spotifyDispatch({ type: 'setImportedPlaylists', importedPlaylists });
       setParsingState('done');
     });
   };
