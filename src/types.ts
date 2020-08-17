@@ -17,9 +17,10 @@ export interface SessionInfo {
 }
 
 export type Song = {
+  spotifyId?: string;
   album: string;
   artist: string;
   title: string;
 };
 
-export type Playlist = Song[];
+export type Playlist = { [importId: string]: Song };

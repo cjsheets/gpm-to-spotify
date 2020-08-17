@@ -1,6 +1,6 @@
 import React, { createContext, useReducer, Dispatch } from 'react';
 import SpotifyWebApi from 'spotify-web-api-js';
-import { User, Playlist } from '../types';
+import { User, Playlist, Song } from '../types';
 
 interface SpotifyContext {
   store: SpotifyStore;
@@ -12,17 +12,20 @@ interface SpotifyStore {
   tokenExpires?: number;
   spotifyApi: SpotifyWebApi.SpotifyWebApiJs;
   importedPlaylists: { [playlistName: string]: Playlist };
+  spotifyPlaylists: { [playlistName: string]: Playlist };
   selectedPlaylist: string;
 }
 
 type ActionTypes =
   | { type: 'setToken'; token: string | null; tokenExpires?: number }
   | { type: 'setImportedPlaylists'; importedPlaylists: { [playlistName: string]: Playlist } }
-  | { type: 'choosePlaylist'; selectedPlaylist: string };
+  | { type: 'choosePlaylist'; selectedPlaylist: string }
+  | { type: 'setSpotifySong'; playlistName: string; songId: string; song: Song };
 
 const initialStore = {
   spotifyApi: new SpotifyWebApi(),
   importedPlaylists: {},
+  spotifyPlaylists: {},
   selectedPlaylist: '',
 };
 
@@ -39,12 +42,24 @@ const userContextReducer = (store: SpotifyStore, action: ActionTypes): SpotifySt
       return { ...store, token: action.token, tokenExpires: action.tokenExpires };
 
     case 'setImportedPlaylists':
-      console.log('set playlists', action.importedPlaylists);
       const selectedPlaylist = Object.keys(action.importedPlaylists)[0];
       return { ...store, importedPlaylists: action.importedPlaylists, selectedPlaylist };
 
     case 'choosePlaylist':
       return { ...store, selectedPlaylist: action.selectedPlaylist };
+
+    case 'setSpotifySong':
+      const { playlistName, songId, song } = action;
+      return {
+        ...store,
+        spotifyPlaylists: {
+          ...store.spotifyPlaylists,
+          [playlistName]: {
+            ...store.spotifyPlaylists[playlistName],
+            [songId]: song,
+          },
+        },
+      };
 
     default:
       throw new Error();

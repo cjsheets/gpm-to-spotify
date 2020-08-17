@@ -10,10 +10,11 @@ export function songArrayReducer(acc: any, next: any) {
   const playlistName = Object.keys(next)[0];
   const { Album, Artist, Title } = next[playlistName];
   if (Album != null && Artist != null && Title != null) {
-    if (acc[playlistName]) {
-      acc[playlistName].push({ album: Album, artist: Artist, title: Title });
+    if (!acc[playlistName]) {
+      acc[playlistName] = { 0: { album: Album, artist: Artist, title: Title } };
     } else {
-      acc[playlistName] = [{ album: Album, artist: Artist, title: Title }];
+      const numSongs = Object.keys(acc[playlistName]).length;
+      acc[playlistName][numSongs] = { album: Album, artist: Artist, title: Title };
     }
   }
 
