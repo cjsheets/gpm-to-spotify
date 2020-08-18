@@ -10,6 +10,9 @@ function MyApp({ Component, pageProps }: AppProps) {
     <ZeitProvider>
       <Head>
         <title>Spotify Admin Panel</title>
+        {process.env.NODE_ENV === 'production' && (
+          <script type="text/javascript" src="/public/rollbar.js"></script>
+        )}
       </Head>
       <CssBaseline />
       <UserContextProvider>
