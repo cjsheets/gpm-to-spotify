@@ -7,14 +7,20 @@ export function flattenArray<T>(arr: any[]): T[] {
 }
 
 export function songArrayReducer(acc: any, next: any) {
+  const decodeChars = (str: string) =>  str.replace(/\&#39;/g, '\'')
+    .replace(/\&quot;/g, '"').replace(/\&amp;/g, '&')
+    .replace(/\&lt;/g, '<').replace(/\&gt;/g, '>');
   const playlistName = Object.keys(next)[0];
   const { Album, Artist, Title } = next[playlistName];
   if (Album != null && Artist != null && Title != null) {
+    const album = decodeChars(Album);
+    const artist = decodeChars(Artist);
+    const title = decodeChars(Title);
     if (!acc[playlistName]) {
-      acc[playlistName] = { 0: { album: Album, artist: Artist, title: Title } };
+      acc[playlistName] = { 0: { album, artist, title } };
     } else {
       const numSongs = Object.keys(acc[playlistName]).length;
-      acc[playlistName][numSongs] = { album: Album, artist: Artist, title: Title };
+      acc[playlistName][numSongs] = { album, artist, title };
     }
   }
 

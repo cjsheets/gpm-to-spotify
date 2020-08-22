@@ -74,9 +74,15 @@ export default function Transfer() {
     data.forEach((song) => {
       queue.push(() =>
         spotifyState.spotifyApi
-          .search(song.title, ['track'])
+          .search(`track:${song.title}`, ['track'], {limit: 50})
           .then((res) => {
             const track = res.tracks?.items[0];
+            if (res.tracks?.items?.length && res.tracks?.items?.length > 1) { 
+              console.log(res.tracks?.items);
+            }
+            if (!res.tracks?.items?.length || res.tracks?.items?.length === 0) { 
+              console.log(res);
+            }
             if (track) {
               spotifyDispatch({
                 type: 'setSpotifySong',
@@ -115,7 +121,7 @@ export default function Transfer() {
           </div>
           <br />
           <br />
-          {removedTrackCount && (
+          {!!removedTrackCount && (
             <>
               {`FYI: ${removedTrackCount} song(s) were removed from Google Play after you added them to this playlist`}
               <br />
@@ -134,7 +140,7 @@ export default function Transfer() {
             <Table.Column prop="title" label="Name" />
             <Table.Column prop="artist" label="Artist" />
             <Table.Column prop="album" label="Album" />
-            {spotifyPlaylistKeys.length && <Table.Column prop="similarity" label="Score" />}
+            {!!spotifyPlaylistKeys.length && <Table.Column prop="similarity" label="Score" />}
           </Table>
         </main>
       </div>
