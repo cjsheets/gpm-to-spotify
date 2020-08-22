@@ -24,3 +24,5 @@ export type Song = {
 };
 
 export type Playlist = { [importId: string]: Song };
+
+export type SearchResult = { [importId: string]: Song[] };
