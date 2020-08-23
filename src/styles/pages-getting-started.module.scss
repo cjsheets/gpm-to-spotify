@@ -1,0 +1,18 @@
+.main {
+  max-width: 1400px;
+  padding: 4rem 1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  font-size: 18px;
+
+  & h2 {
+    color: #575a89;
+  }
+}
+
+.imageContainer {
+  width: 650px !important;
+  margin: 30px auto !important;
+  padding: 10px !important;
+}

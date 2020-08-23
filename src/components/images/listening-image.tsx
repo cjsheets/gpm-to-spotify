@@ -1,4 +1,4 @@
-export const Listening = () => (
+export const ListeningImage = () => (
   <svg
     id="a9556c1d-039e-450d-9846-bdcfe1beae94"
     data-name="Layer 1"
