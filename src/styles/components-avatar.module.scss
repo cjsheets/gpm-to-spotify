@@ -1,8 +1,7 @@
 .container {
-  flex: 0 0 100px;
-  display: flex;
-  align-items: center;
-  padding: 0 50px;
+  position: fixed;
+  top: 20px;
+  right: 40px;
 
   & a {
     text-decoration: none;

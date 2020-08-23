@@ -1,12 +1,12 @@
 import React, { useContext, useState } from 'react';
 import indexStyles from '../styles/pages-index.module.scss';
 import gettingStartedStyles from '../styles/pages-getting-started.module.scss';
-import Header from '../components/header';
+import Avatar from '../components/avatar';
 import Footer from '../components/footer';
 import { userStore } from '../stores/user-store';
-import { Card, Divider } from '@zeit-ui/react';
+import { Card, Divider, Spacer, Image, Display, Note } from '@zeit-ui/react';
 import DropArea from '../components/droparea';
-import { GradientWave } from '../components/images/gradient-wave';
+import SignInButton from '../components/sign-in-button';
 
 export default function GetStarted() {
   const [isDragOver, setDragOver] = useState(false);
@@ -16,8 +16,7 @@ export default function GetStarted() {
 
   return (
     <>
-      <GradientWave />
-      <Header />
+      <Avatar />
       <div className={indexStyles.container}>
         <main className={gettingStartedStyles.main}>
           <DropArea>
@@ -27,35 +26,54 @@ export default function GetStarted() {
               onDragOver={() => setDragOver(true)}
               onDragLeave={() => setDragOver(false)}
             >
+              <Spacer y={1} />
               <p>Only a few steps and you can start transferring!</p>
+              <Spacer y={1} />
+
+              {!store.user && (
+                <>
+                  <Divider />
+                  <h2>Sign in using Spotify</h2>
+
+                  <Spacer y={2} />
+                  <SignInButton />
+                  <Spacer y={2} />
+                </>
+              )}
+
               <Divider />
-              <h2>Sign in using Spotify</h2>
 
-              <p>Transferring playlists to Spotify requires a sign in.</p>
-
-              <Divider />
-
-              <h2>Export from Google</h2>
+              <h2>Export playlists from Google</h2>
+              <Spacer y={1} />
               <p>
                 Using <a href="https://takeout.google.com/">Google Play Music Takeout</a>, download
                 your playlists and music
               </p>
 
-              <Card className={gettingStartedStyles.imageContainer}>
-                <img src="/export-gpm.png" className={gettingStartedStyles.screenshot} />
-              </Card>
+              <Display shadow caption="Un-check all except Google Play Music">
+                <Image width={650} height={168} src="/export-gpm.png" />
+              </Display>
+              <Spacer y={1} />
 
-              <ol>
-                <li>Export your playlists with Google Play Music Takeout</li>
-                <li>Extract the zip file</li>
-                <ol>
-                  <li>
-                    If the export has multiple parts, combine them by (copy + paste Takeout folders
-                    into each other)
-                  </li>
-                </ol>
-                <li>Drag and Drop the "Google Play Music" folder (inside "Takeout") here</li>
-              </ol>
+              {store.user && (
+                <>
+                  <Spacer y={1} />
+                  <Divider />
+
+                  <h2>Import Playlists</h2>
+
+                  <Spacer y={1} />
+                  <Note className={gettingStartedStyles.note}>
+                    If the export is split into multiple parts, you should combine them by
+                    dragging-dropping the "Google Play Music" folders onto each other.
+                  </Note>
+                  <Spacer y={1} />
+                  <p>
+                    Drag and drop the "Playlists" folder (located inside "Takeout" &gt; "Google Play
+                    Music") here.
+                  </p>
+                </>
+              )}
             </Card>
           </DropArea>
         </main>

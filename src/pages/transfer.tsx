@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import Header from '../components/header';
+import Avatar from '../components/avatar';
 import Footer from '../components/footer';
 import { spotifyStore } from '../stores/spotify-store';
 import { Button, Progress, Select, Spinner, Table, Tooltip } from '@zeit-ui/react';
@@ -13,8 +13,8 @@ import {
   Circle,
   XOctagon,
 } from '@zeit-ui/react-icons';
-import styles from '../styles/LogIn.module.scss';
-import transferStyles from '../styles/transfer.module.scss';
+import indexStyles from '../styles/pages-index.module.scss';
+import transferStyles from '../styles/pages-transfer.module.scss';
 import { appendConfidenceLevel } from '../utility/confidence';
 import { userStore } from '../stores/user-store';
 
@@ -192,9 +192,9 @@ export default function Transfer() {
 
   return (
     <>
-      <Header />
-      <div className={styles.container}>
-        <main className={styles.main}>
+      <Avatar />
+      <div className={indexStyles.container}>
+        <main className={indexStyles.main}>
           <div className={transferStyles.actionContainer}>
             <PlaylistChooser />
             <Button type="success" onClick={createSpotifyPlaylist}>

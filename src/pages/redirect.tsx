@@ -1,12 +1,12 @@
 import React, { useContext, useState, useEffect } from 'react';
-import styles from '../styles/LogIn.module.scss';
-import Header from '../components/header';
+import styles from '../styles/pages-index.module.scss';
 import Footer from '../components/footer';
 import { userStore } from '../stores/user-store';
 import { spotifyStore } from '../stores/spotify-store';
 import { useFetch } from '../utility/use-fetch';
 import { useRouter } from 'next/router';
 import { SessionInfo } from '../types';
+import { Loading } from '@zeit-ui/react';
 
 export default function LogIn() {
   const userContext = useContext(userStore);
@@ -48,15 +48,14 @@ export default function LogIn() {
       const sessionInfo = JSON.stringify({ user, ...tokenInfo });
       window.sessionStorage.setItem('sessionInfo', sessionInfo);
 
-      router.replace('/', undefined, { shallow: true });
+      router.replace('/get-started', undefined, { shallow: true });
     }
   }, [fetchResult]);
 
   return (
     <>
-      <Header />
       <div className={styles.container}>
-        <main className={styles.main}>{'Logging in...'}</main>
+        <Loading>Logging in</Loading>
       </div>
       <Footer />
     </>
