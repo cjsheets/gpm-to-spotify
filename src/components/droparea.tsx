@@ -1,11 +1,16 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { useToasts, Loading } from '@zeit-ui/react';
+import { useToasts, Loading, Card } from '@zeit-ui/react';
 import { findAndParseCsvs, flattenArray, songArrayReducer } from '../utility/parse-playlists';
 import { Playlist } from '../types';
 import { useRouter } from 'next/router';
 import { spotifyStore } from '../stores/spotify-store';
 
-export default function DropArea({ children }: React.PropsWithChildren<{}>) {
+export default function DropArea({
+  children,
+  disabled,
+}: React.PropsWithChildren<{ disabled?: boolean }>) {
+  const [isDragOver, setDragOver] = useState(false);
+
   const spotifyContext = useContext(spotifyStore);
   const { dispatch: spotifyDispatch } = spotifyContext;
 
@@ -22,7 +27,7 @@ export default function DropArea({ children }: React.PropsWithChildren<{}>) {
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    if (!event?.dataTransfer) {
+    if (!event?.dataTransfer || disabled) {
       return;
     }
 
@@ -50,8 +55,19 @@ export default function DropArea({ children }: React.PropsWithChildren<{}>) {
 
   return (
     <div onDrop={handleDrop} onDragOver={handleDragOver}>
-      {children}
-      {parsingState && <Loading size="large">{'Please wait, parsing playlists'}</Loading>}
+      <Card
+        hoverable
+        shadow={isDragOver}
+        onDragOver={() => setDragOver(true)}
+        onDragLeave={() => setDragOver(false)}
+        style={{ padding: 10, minHeight: '60vh', minWidth: 650 }}
+      >
+        {parsingState ? (
+          <Loading size="large">{'Please wait, parsing playlists'}</Loading>
+        ) : (
+          children
+        )}
+      </Card>
     </div>
   );
 }

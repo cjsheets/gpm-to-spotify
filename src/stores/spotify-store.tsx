@@ -12,7 +12,7 @@ interface SpotifyStore {
   tokenExpires?: number;
   spotifyApi: SpotifyWebApi.SpotifyWebApiJs;
   importedPlaylists: { [playlistName: string]: Playlist };
-  selectedSongs: { [playlistName: string]: {[importId: string]: number} };
+  selectedSongs: { [playlistName: string]: { [importId: string]: number } };
   searchResults: { [playlistName: string]: SearchResult };
   selectedPlaylist: string;
 }
@@ -22,7 +22,8 @@ type ActionTypes =
   | { type: 'setImportedPlaylists'; importedPlaylists: { [playlistName: string]: Playlist } }
   | { type: 'choosePlaylist'; selectedPlaylist: string }
   | { type: 'chooseSong'; playlistName: string; songId: string; selectedSong: number }
-  | { type: 'setSearchResults'; playlistName: string; songId: string; songs: Song[] };
+  | { type: 'setSearchResults'; playlistName: string; songId: string; songs: Song[] }
+  | { type: 'removeSong'; playlistName: string; songId: string };
 
 const initialStore = {
   spotifyApi: new SpotifyWebApi(),
@@ -78,6 +79,32 @@ const userContextReducer = (store: SpotifyStore, action: ActionTypes): SpotifySt
           [action.playlistName]: {
             ...store.selectedSongs[action.playlistName],
             [action.songId]: 0,
+          },
+        },
+      };
+
+    case 'removeSong':
+      delete store.searchResults[action.playlistName][action.songId];
+      delete store.selectedSongs[action.playlistName][action.songId];
+      delete store.importedPlaylists[action.playlistName][action.songId];
+      return {
+        ...store,
+        importedPlaylists: {
+          ...store.importedPlaylists,
+          [action.playlistName]: {
+            ...store.importedPlaylists[action.playlistName],
+          },
+        },
+        searchResults: {
+          ...store.searchResults,
+          [action.playlistName]: {
+            ...store.searchResults[action.playlistName],
+          },
+        },
+        selectedSongs: {
+          ...store.selectedSongs,
+          [action.playlistName]: {
+            ...store.selectedSongs[action.playlistName],
           },
         },
       };

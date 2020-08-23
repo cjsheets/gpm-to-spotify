@@ -10,17 +10,17 @@ export default function PlaylistChooser() {
   const playlistNames = Object.keys(importedPlaylists);
 
   return (
-    <div>
-      <Select
-        initialValue={selectedPlaylist}
-        onChange={(p) => spotifyDispatch({ type: 'choosePlaylist', selectedPlaylist: p as string })}
-      >
-        {playlistNames.map((name) => (
-          <Select.Option key={name} value={name}>
-            {name}
-          </Select.Option>
-        ))}
-      </Select>
-    </div>
+    <Select
+      width="100%"
+      style={{ height: 40 }}
+      initialValue={selectedPlaylist}
+      onChange={(p) => spotifyDispatch({ type: 'choosePlaylist', selectedPlaylist: p as string })}
+    >
+      {playlistNames.map((name) => (
+        <Select.Option key={name} value={name}>
+          {name}
+        </Select.Option>
+      ))}
+    </Select>
   );
 }

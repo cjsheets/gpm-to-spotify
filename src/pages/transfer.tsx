@@ -2,21 +2,22 @@ import React, { useContext, useEffect, useState } from 'react';
 import Avatar from '../components/avatar';
 import Footer from '../components/footer';
 import { spotifyStore } from '../stores/spotify-store';
-import { Button, Progress, Select, Spinner, Table, Tooltip } from '@zeit-ui/react';
+import { Button, Card, Divider, Select, Spacer, Table, Tooltip } from '@zeit-ui/react';
 import { useRouter } from 'next/router';
 import PlaylistChooser from '../components/playlist-chooser';
 import { createQueue } from '../utility/queue';
 import {
   AlertTriangle,
   AlertTriangleFill,
+  CheckCircle,
   CheckInCircle,
   Circle,
   XOctagon,
 } from '@zeit-ui/react-icons';
-import indexStyles from '../styles/pages-index.module.scss';
-import transferStyles from '../styles/pages-transfer.module.scss';
+import styles from '../styles/pages-transfer.module.scss';
 import { appendConfidenceLevel } from '../utility/confidence';
 import { userStore } from '../stores/user-store';
+import StatusIcon from '../components/status-icon';
 
 export default function Transfer() {
   const userContext = useContext(userStore);
@@ -27,6 +28,8 @@ export default function Transfer() {
   const { importedPlaylists, searchResults, selectedSongs, selectedPlaylist } = spotifyState;
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isTransferringPlaylist, setTransferringPlaylist] = useState(false);
+  const [transferredPlaylists, setTransferredPlaylists] = useState<string[]>([]);
 
   const queue = createQueue(3);
   const router = useRouter();
@@ -49,14 +52,20 @@ export default function Transfer() {
     return null;
   }
 
-  let removedTrackCount = 0;
-
   const chooseSong = (songId: string, selectedSong: number) => {
     spotifyDispatch({
       type: 'chooseSong',
       playlistName: spotifyState.selectedPlaylist,
       songId,
       selectedSong,
+    });
+  };
+
+  const removeSong = (songId: string) => {
+    spotifyDispatch({
+      type: 'removeSong',
+      playlistName: spotifyState.selectedPlaylist,
+      songId,
     });
   };
 
@@ -68,7 +77,6 @@ export default function Transfer() {
   const data = importedPlaylistKeys
     .filter((id) => {
       if (!importedPlaylist[id].title) {
-        removedTrackCount++;
         return false;
       } else {
         return true;
@@ -80,7 +88,15 @@ export default function Transfer() {
         if (!searchResults || searchResults.length === 0) {
           return {
             id,
-            status: isLoading ? <Spinner /> : <AlertTriangleFill color="red" />,
+            status: (
+              <StatusIcon
+                Icon={AlertTriangleFill}
+                color="red"
+                disabled
+                isLoading={isLoading}
+                onRemove={() => removeSong(id)}
+              />
+            ),
             ...importedPlaylist[id],
           };
         }
@@ -103,17 +119,20 @@ export default function Transfer() {
             selectedSong.title
           );
 
-        let icon = <CheckInCircle color="green" />;
+        let icon = (
+          <StatusIcon Icon={CheckInCircle} color="green" onRemove={() => removeSong(id)} />
+        );
         const confidenceValue = selectedSong.confidence?.replace('%', '') || 0;
         if (+confidenceValue < 50) {
-          icon = <XOctagon color="red" />;
+          icon = <StatusIcon Icon={XOctagon} color="red" onRemove={() => removeSong(id)} />;
         } else if (+confidenceValue < 90) {
-          icon = <AlertTriangle color="orange" />;
+          icon = <StatusIcon Icon={AlertTriangle} color="orange" onRemove={() => removeSong(id)} />;
         }
 
         const status = (
           <Tooltip
             placement="right"
+            enterDelay={0}
             text={
               <div style={{ fontSize: 12 }}>
                 <div>
@@ -139,7 +158,7 @@ export default function Transfer() {
 
       return {
         id,
-        status: false ? <AlertTriangleFill color="red" /> : <Circle />,
+        status: <StatusIcon Icon={Circle} disabled />,
         ...importedPlaylist[id],
       };
     });
@@ -181,6 +200,7 @@ export default function Transfer() {
   };
 
   const uploadSpotifyPlaylist = async () => {
+    setTransferringPlaylist(true);
     const playlist = await spotifyState.spotifyApi.createPlaylist(userState.user?.id || '', {
       name: spotifyState.selectedPlaylist,
     });
@@ -188,47 +208,87 @@ export default function Transfer() {
     const uris = data.map((song) => song.uri as string).filter(Boolean);
 
     await spotifyState.spotifyApi.addTracksToPlaylist(playlist.id, uris);
+    transferredPlaylists.push(spotifyState.selectedPlaylist);
+    setTransferredPlaylists(transferredPlaylists);
+    setTransferringPlaylist(false);
   };
+
+  let actionButton;
+  if (isLoading) {
+    actionButton = (
+      <Button type="success" loading style={{ margin: 'auto', display: 'block' }}></Button>
+    );
+  } else if (spotifyPlaylistKeys.length) {
+    actionButton = (
+      <Button
+        type="success-light"
+        onClick={uploadSpotifyPlaylist}
+        icon={
+          transferredPlaylists.indexOf(spotifyState.selectedPlaylist) >= 0 ? (
+            <CheckCircle />
+          ) : undefined
+        }
+        loading={isTransferringPlaylist}
+        style={{ margin: 'auto', display: 'block' }}
+      >
+        Transfer
+      </Button>
+    );
+  } else {
+    actionButton = (
+      <Button
+        ghost
+        type="success"
+        onClick={createSpotifyPlaylist}
+        style={{ margin: 'auto', display: 'block' }}
+      >
+        Convert
+      </Button>
+    );
+  }
 
   return (
     <>
       <Avatar />
-      <div className={indexStyles.container}>
-        <main className={indexStyles.main}>
-          <div className={transferStyles.actionContainer}>
-            <PlaylistChooser />
-            <Button type="success" onClick={createSpotifyPlaylist}>
-              Convert Playlist
-            </Button>
-            <Button type="success" onClick={uploadSpotifyPlaylist}>
-              Create Playlist
-            </Button>
+      <div className={styles.container}>
+        <div className={styles.actionContainer}>
+          <div>
+            <Card width="100%">
+              <Card.Content>
+                <b>Choose an imported playlist</b>
+              </Card.Content>
+              <Divider y={0} />
+              <Card.Content>
+                <PlaylistChooser />
+              </Card.Content>
+            </Card>
           </div>
-          <br />
-          <br />
-          {!!removedTrackCount && (
-            <>
-              {`FYI: ${removedTrackCount} song(s) were removed from Google Play after you added them to this playlist`}
-              <br />
-              <br />
-            </>
-          )}
-          <Progress
-            type="success"
-            value={spotifyPlaylistKeys.length}
-            max={importedPlaylistKeys.length}
-          />
-          <br />
-          <br />
-          <Table data={data}>
-            <Table.Column prop="status" label="" />
-            <Table.Column prop="title" label="Name" />
-            <Table.Column prop="artist" label="Artist" />
-            <Table.Column prop="album" label="Album" />
-            {!!spotifyPlaylistKeys.length && <Table.Column prop="confidence" label="Confidence" />}
-            <Table.Column prop="remove" label="" />
-          </Table>
-        </main>
+          <div>
+            <Card width="100%">
+              <Card.Content>
+                {spotifyPlaylistKeys.length ? (
+                  <b>Transfer playlist to Spotify</b>
+                ) : (
+                  <b>Convert to Spotify playlist</b>
+                )}
+              </Card.Content>
+              <Divider y={0} />
+              <Card.Content>{actionButton}</Card.Content>
+            </Card>
+          </div>
+        </div>
+        <Spacer y={1} />
+        <h2 style={{ paddingLeft: 20 }}>{spotifyState.selectedPlaylist}</h2>
+        <Spacer y={1} />
+
+        <Table data={data}>
+          <Table.Column prop="status" label="" />
+          <Table.Column prop="title" label="Name" />
+          <Table.Column prop="artist" label="Artist" />
+          <Table.Column prop="album" label="Album" />
+          {!!spotifyPlaylistKeys.length && <Table.Column prop="confidence" label="Confidence" />}
+          <Table.Column prop="remove" label="" />
+        </Table>
       </div>
       <Footer />
     </>
