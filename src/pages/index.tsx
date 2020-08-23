@@ -5,6 +5,7 @@ import Footer from '../components/footer';
 import { userStore } from '../stores/user-store';
 import { Card } from '@zeit-ui/react';
 import DropArea from '../components/droparea';
+import { Listening } from '../components/images/listen';
 
 export default function Index() {
   const [isDragOver, setDragOver] = useState(false);
@@ -18,9 +19,15 @@ export default function Index() {
       <div className={styles.container}>
         <main className={styles.main}>
           {!store.user && (
-            <>
-              <h1>Import Google Play Music playlists to Spotify</h1>
-            </>
+            <div style={{ display: 'flex' }}>
+              <div style={{ flex: '1 1 50%' }}>
+                <h1 style={{ maxWidth: 600 }}>Transfer Google Play Music playlists to Spotify</h1>
+                <h2 style={{ maxWidth: 600 }}>Open Source, 100% Free</h2>
+              </div>
+              <div style={{ flex: '1 1 50%' }}>
+                <Listening />
+              </div>
+            </div>
           )}
           {store.user && (
             <DropArea>

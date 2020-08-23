@@ -6,12 +6,22 @@ import { Button, Progress, Select, Spinner, Table, Tooltip } from '@zeit-ui/reac
 import { useRouter } from 'next/router';
 import PlaylistChooser from '../components/playlist-chooser';
 import { createQueue } from '../utility/queue';
-import { AlertTriangle, AlertTriangleFill, CheckInCircle, Circle, XOctagon } from '@zeit-ui/react-icons';
+import {
+  AlertTriangle,
+  AlertTriangleFill,
+  CheckInCircle,
+  Circle,
+  XOctagon,
+} from '@zeit-ui/react-icons';
 import styles from '../styles/LogIn.module.scss';
 import transferStyles from '../styles/transfer.module.scss';
 import { appendConfidenceLevel } from '../utility/confidence';
+import { userStore } from '../stores/user-store';
 
 export default function Transfer() {
+  const userContext = useContext(userStore);
+  const { store: userState } = userContext;
+
   const spotifyContext = useContext(spotifyStore);
   const { store: spotifyState, dispatch: spotifyDispatch } = spotifyContext;
   const { importedPlaylists, searchResults, selectedSongs, selectedPlaylist } = spotifyState;
@@ -46,9 +56,9 @@ export default function Transfer() {
       type: 'chooseSong',
       playlistName: spotifyState.selectedPlaylist,
       songId,
-      selectedSong
+      selectedSong,
     });
-  }
+  };
 
   const importedPlaylist = importedPlaylists[selectedPlaylist];
   const playlistSelectedSongs = selectedSongs[selectedPlaylist] || {};
@@ -71,13 +81,14 @@ export default function Transfer() {
           return {
             id,
             status: isLoading ? <Spinner /> : <AlertTriangleFill color="red" />,
-          ...importedPlaylist[id],
-          }
+            ...importedPlaylist[id],
+          };
         }
 
         const selectedSong = searchResults[playlistSelectedSongs[id]];
-        const title = searchResults.length > 1
-         ? (<Select
+        const title =
+          searchResults.length > 1 ? (
+            <Select
               initialValue={playlistSelectedSongs[id].toString()}
               onChange={(index) => chooseSong(id, +index)}
               disableMatchWidth
@@ -87,63 +98,70 @@ export default function Transfer() {
                   {i === playlistSelectedSongs[id] ? title : `${title} - ${artist} (${confidence})`}
                 </Select.Option>
               ))}
-            </Select>)
-          : selectedSong.title
+            </Select>
+          ) : (
+            selectedSong.title
+          );
 
-        let icon = <CheckInCircle color="green" />
+        let icon = <CheckInCircle color="green" />;
         const confidenceValue = selectedSong.confidence?.replace('%', '') || 0;
         if (+confidenceValue < 50) {
-          icon =  <XOctagon color="red" />
+          icon = <XOctagon color="red" />;
         } else if (+confidenceValue < 90) {
-          icon =  <AlertTriangle color="orange" />
+          icon = <AlertTriangle color="orange" />;
         }
 
         const status = (
           <Tooltip
             placement="right"
-            text={<div style={{fontSize: 12}}>
-                <div><b>{'Original Song:'}</b></div>
+            text={
+              <div style={{ fontSize: 12 }}>
+                <div>
+                  <b>{'Original Song:'}</b>
+                </div>
                 <div>{importedPlaylist[id].title}</div>
                 <div>{importedPlaylist[id].artist}</div>
                 <div>{importedPlaylist[id].album}</div>
-            </div>}
-          >{icon}</Tooltip>
-        )
+              </div>
+            }
+          >
+            {icon}
+          </Tooltip>
+        );
 
         return {
           id,
           status,
           ...selectedSong,
-          title
+          title,
         };
       }
 
       return {
         id,
         status: false ? <AlertTriangleFill color="red" /> : <Circle />,
-        ...importedPlaylist[id]
+        ...importedPlaylist[id],
       };
     });
 
   const createSpotifyPlaylist = () => {
     setIsLoading(true);
     importedPlaylistKeys
-      .filter(id => importedPlaylist[id].title)
+      .filter((id) => importedPlaylist[id].title)
       .forEach((id) => {
         queue.push(() =>
           spotifyState.spotifyApi
-            .search(`track:${importedPlaylist[id].title}`, ['track'], {limit: 50})
+            .search(`track:${importedPlaylist[id].title}`, ['track'], { limit: 50 })
             .then((res) => {
               const tracks = appendConfidenceLevel(
                 importedPlaylist[id],
-                res.tracks?.items.map(({ id, artists, album, name }) => ({
-                  spotifyId: id,
+                res.tracks?.items.map(({ uri, artists, album, name }) => ({
+                  uri,
                   artist: artists[0].name,
                   album: album.name,
-                  title: name
+                  title: name,
                 }))
               );
-              console.log(tracks);
 
               if (tracks && tracks[0]) {
                 spotifyDispatch({
@@ -162,6 +180,16 @@ export default function Transfer() {
     });
   };
 
+  const uploadSpotifyPlaylist = async () => {
+    const playlist = await spotifyState.spotifyApi.createPlaylist(userState.user?.id || '', {
+      name: spotifyState.selectedPlaylist,
+    });
+
+    const uris = data.map((song) => song.uri as string).filter(Boolean);
+
+    await spotifyState.spotifyApi.addTracksToPlaylist(playlist.id, uris);
+  };
+
   return (
     <>
       <Header />
@@ -172,7 +200,7 @@ export default function Transfer() {
             <Button type="success" onClick={createSpotifyPlaylist}>
               Convert Playlist
             </Button>
-            <Button type="success" onClick={createSpotifyPlaylist}>
+            <Button type="success" onClick={uploadSpotifyPlaylist}>
               Create Playlist
             </Button>
           </div>

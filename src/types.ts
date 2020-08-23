@@ -21,7 +21,7 @@ export type Song = {
   artist: string;
   title: string;
   confidence?: string;
-  spotifyId?: string;
+  uri?: string;
 };
 
 export type Playlist = { [importId: string]: Song };
