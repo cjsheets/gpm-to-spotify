@@ -23,7 +23,12 @@ export default withAuthentication(function SignInButton() {
   signInParams.append('response_type', 'token');
   signInParams.append('redirect_uri', `${origin}/redirect`);
 
-  const spotifyScopes = ['user-read-email', 'user-read-private', 'playlist-modify-private'];
+  const spotifyScopes = [
+    'user-read-email',
+    'user-read-private',
+    'playlist-modify-public',
+    'playlist-modify-private',
+  ];
   signInParams.append('scope', spotifyScopes.join(','));
 
   const signInUrl = 'https://accounts.spotify.com/authorize';
