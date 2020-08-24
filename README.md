@@ -8,6 +8,8 @@ To use this app, you need to manually export your playlists using Google Takeout
 
 You can use this app at [gpm-to-spotify.sheets.ch](https://gpm-to-spotify.sheets.ch) or you can run it locally.
 
+**To run locally:**
+
 - Create a new Spotify app at the [Spotify for Developers dashboard](https://developer.spotify.com/dashboard/applications)
   - Note the "Client ID" of your new app
   - Edit Settings and add a redirect URI: `http://localhost:3000/redirect`

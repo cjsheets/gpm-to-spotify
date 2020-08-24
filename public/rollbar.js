@@ -1,5 +1,5 @@
 var _rollbarConfig = {
-  accessToken: process.env.NEXT_PUBLIC_ROLLBAR_ACCESS_TOKEN,
+  accessToken: '7eea710483ff49829d63d78daf5a57b5',
   captureUncaught: true,
   captureUnhandledRejections: true,
   payload: {
