@@ -11,29 +11,22 @@ export default withAuthentication(function SignInButton({ componentRef }: Props)
 
   React.useEffect(() => {
     if (redirectUri) {
-      window.location.href = redirectUri;
+      const signInParams = new URLSearchParams();
+      signInParams.append('client_id', process.env.NEXT_PUBLIC_CLIENT_ID as string);
+      signInParams.append('response_type', 'token');
+      signInParams.append('redirect_uri', `${window.location.origin}/redirect`);
+
+      const spotifyScopes = [
+        'user-read-email',
+        'user-read-private',
+        'playlist-modify-public',
+        'playlist-modify-private',
+      ];
+      signInParams.append('scope', spotifyScopes.join(','));
+
+      window.location.href = `${redirectUri}?${signInParams}`;
     }
   }, [redirectUri]);
-
-  const [origin, setOrigin] = useState('');
-
-  React.useEffect(() => {
-    // Origin needed for login redirect URI
-    setOrigin(window.location.origin);
-  }, []);
-
-  const signInParams = new URLSearchParams();
-  signInParams.append('client_id', process.env.NEXT_PUBLIC_CLIENT_ID as string);
-  signInParams.append('response_type', 'token');
-  signInParams.append('redirect_uri', `${origin}/redirect`);
-
-  const spotifyScopes = [
-    'user-read-email',
-    'user-read-private',
-    'playlist-modify-public',
-    'playlist-modify-private',
-  ];
-  signInParams.append('scope', spotifyScopes.join(','));
 
   const signInUrl = 'https://accounts.spotify.com/authorize';
 
@@ -43,7 +36,7 @@ export default withAuthentication(function SignInButton({ componentRef }: Props)
       type="success-light"
       size="large"
       style={{ marginLeft: '1rem' }}
-      onClick={() => setRedirectUri(`${signInUrl}?${signInParams}`)}
+      onClick={() => setRedirectUri(signInUrl)}
       ref={componentRef}
     >
       Sign in
