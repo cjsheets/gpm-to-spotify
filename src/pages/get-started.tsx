@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { createRef, useContext, useEffect } from 'react';
 import indexStyles from '../styles/pages-index.module.scss';
 import gettingStartedStyles from '../styles/pages-getting-started.module.scss';
 import Avatar from '../components/avatar';
@@ -9,8 +9,17 @@ import DropArea from '../components/droparea';
 import SignInButton from '../components/sign-in-button';
 
 export default function GetStarted() {
+  const signInRef = createRef<HTMLButtonElement>();
   const userContext = useContext(userStore);
   const { store } = userContext;
+
+  useEffect(() => {
+    const returningUser = window.localStorage.getItem('returningUser');
+    const knownUser = returningUser && JSON.parse(returningUser);
+    if (knownUser?.isReturning && !store.user) {
+      signInRef?.current?.click();
+    }
+  }, []);
 
   return (
     <>
@@ -24,17 +33,17 @@ export default function GetStarted() {
             {!store.user && (
               <>
                 <Divider />
-                <h2>Sign in using Spotify</h2>
+                <h2>1. Sign in using Spotify</h2>
 
                 <Spacer y={2} />
-                <SignInButton />
+                <SignInButton componentRef={signInRef} />
                 <Spacer y={2} />
               </>
             )}
 
             <Divider />
 
-            <h2>Export playlists from Google</h2>
+            <h2>2. Export playlists from Google</h2>
             <Spacer y={1} />
             <p>
               Using <a href="https://takeout.google.com/">Google Play Music Takeout</a>, download
@@ -51,7 +60,7 @@ export default function GetStarted() {
                 <Spacer y={1} />
                 <Divider />
 
-                <h2>Import Playlists</h2>
+                <h2>3. Import Playlists</h2>
 
                 <Spacer y={1} />
                 <Note className={gettingStartedStyles.note}>

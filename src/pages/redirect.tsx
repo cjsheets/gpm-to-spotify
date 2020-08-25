@@ -45,8 +45,8 @@ export default function LogIn() {
     if (user) {
       userDispatch({ type: 'setUserInfo', user });
 
-      const sessionInfo = JSON.stringify({ user, ...tokenInfo });
-      window.sessionStorage.setItem('sessionInfo', sessionInfo);
+      window.sessionStorage.setItem('sessionInfo', JSON.stringify({ user, ...tokenInfo }));
+      window.localStorage.setItem('returningUser', JSON.stringify({ isReturning: true }));
 
       router.replace('/get-started', undefined, { shallow: true });
     }

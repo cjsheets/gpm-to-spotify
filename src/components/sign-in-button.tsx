@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { Button } from '@zeit-ui/react';
 import { withAuthentication } from '../utility/with-authentication';
 
-export default withAuthentication(function SignInButton() {
+interface Props {
+  componentRef?: React.RefObject<HTMLButtonElement>;
+}
+
+export default withAuthentication(function SignInButton({ componentRef }: Props) {
   const [redirectUri, setRedirectUri] = useState<string>();
 
   React.useEffect(() => {
@@ -40,6 +44,7 @@ export default withAuthentication(function SignInButton() {
       size="large"
       style={{ marginLeft: '1rem' }}
       onClick={() => setRedirectUri(`${signInUrl}?${signInParams}`)}
+      ref={componentRef}
     >
       Sign in
     </Button>

@@ -3,8 +3,8 @@ import { userStore } from '../stores/user-store';
 import { spotifyStore } from '../stores/spotify-store';
 import { SessionInfo } from '../types';
 
-export function withAuthentication(WrappedComponent: () => JSX.Element | null) {
-  return function () {
+export function withAuthentication(WrappedComponent: (props: any) => JSX.Element | null) {
+  return function (props: any) {
     const userContext = useContext(userStore);
     const { store: userState, dispatch: userDispatch } = userContext;
 
@@ -29,6 +29,6 @@ export function withAuthentication(WrappedComponent: () => JSX.Element | null) {
       }
     }, []);
 
-    return <WrappedComponent />;
+    return <WrappedComponent {...props} />;
   };
 }
