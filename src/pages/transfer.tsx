@@ -158,7 +158,7 @@ export default function Transfer() {
 
       return {
         id,
-        status: <StatusIcon Icon={Circle} disabled />,
+        status: null,
         ...importedPlaylist[id],
       };
     });
@@ -172,9 +172,35 @@ export default function Transfer() {
           spotifyState.spotifyApi
             .search(`track:${importedPlaylist[id].title}`, ['track'], { limit: 50 })
             .then((res) => {
-              const tracks = appendConfidenceLevel(
+              // If no tracks were found, strip extra metadata (parentheses) and single quotes
+              if (!res.tracks || res.tracks.items.length === 0) {
+                let trimmedTitle = importedPlaylist[id].title.replace(/ *\([^)]*\) */g, '');
+                trimmedTitle = trimmedTitle.replace(/ *\[[^\]]*\] */g, '');
+                trimmedTitle = trimmedTitle.replace(/'/g, '');
+                trimmedTitle.trim();
+                return spotifyState.spotifyApi
+                  .search(`track:${trimmedTitle}`, ['track'], {
+                    limit: 50,
+                  })
+                  .then((_res) => _res.tracks?.items || []);
+              }
+
+              // If 50 tracks were found, call for another 50
+              if (res.tracks && res.tracks.items.length === 50) {
+                return spotifyState.spotifyApi
+                  .search(`track:${importedPlaylist[id].title}`, ['track'], {
+                    limit: 50,
+                    offset: 50,
+                  })
+                  .then((_res) => res.tracks?.items.concat(_res.tracks?.items || []) || []);
+              }
+
+              return res.tracks?.items || [];
+            })
+            .then((items) => {
+              const songs = appendConfidenceLevel(
                 importedPlaylist[id],
-                res.tracks?.items.map(({ uri, artists, album, name }) => ({
+                items.map(({ uri, artists, album, name }) => ({
                   uri,
                   artist: artists[0].name,
                   album: album.name,
@@ -182,12 +208,12 @@ export default function Transfer() {
                 }))
               );
 
-              if (tracks && tracks[0]) {
+              if (songs && songs[0]) {
                 spotifyDispatch({
                   type: 'setSearchResults',
                   playlistName: selectedPlaylist,
                   songId: id,
-                  songs: tracks,
+                  songs,
                 });
               }
             })
