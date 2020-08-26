@@ -15,7 +15,7 @@ export function songArrayReducer(acc: any, next: any) {
   if (Album != null && Artist != null && Title != null) {
     const album = decodeChars(Album);
     const artist = decodeChars(Artist);
-    const title = decodeChars(Title);
+    const title = decodeChars(Title).replace(/"/g, '');
     if (!acc[playlistName]) {
       acc[playlistName] = { 0: { album, artist, title } };
     } else {

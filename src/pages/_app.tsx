@@ -26,7 +26,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <Head>
         <title>Google Play Music to Spotify</title>
         {process.env.NODE_ENV === 'production' && (
-          <script type="text/javascript" src="/rollbar.js"></script>
+          <script type="text/javascript" src="/rb.js"></script>
         )}
       </Head>
       <CssBaseline />
