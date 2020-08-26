@@ -14,7 +14,7 @@ You can use this app at [gpm-to-spotify.sheets.ch](https://gpm-to-spotify.sheets
   - Note the "Client ID" of your new app
   - Edit Settings and add a redirect URI: `http://localhost:3000/redirect`
 - Create a `.env.local` file in the projects root directory
-  - Add this line: `NEXT_PUBLIC_CLIENT_ID=[ YOUR_CLIENT_ID ]`
+  - Add this line: `NEXT_PUBLIC_CLIENT_ID=your-client-id`
 - Install and run the application.
   - `yarn` then `yarn dev`
 - View the running application at [http://localhost:3000](http://localhost:3000)
