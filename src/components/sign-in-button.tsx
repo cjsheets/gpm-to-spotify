@@ -38,6 +38,7 @@ export default withAuthentication(function SignInButton({ componentRef }: Props)
       style={{ marginLeft: '1rem' }}
       onClick={() => setRedirectUri(signInUrl)}
       ref={componentRef}
+      title="Sign in to Spotify"
     >
       Sign in
     </Button>

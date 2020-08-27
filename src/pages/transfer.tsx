@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import Avatar from '../components/avatar';
 import Footer from '../components/footer';
 import { spotifyStore } from '../stores/spotify-store';
-import { Button, Card, Divider, Select, Spacer, Table, Tooltip } from '@zeit-ui/react';
+import { Button, Card, Divider, Loading, Select, Spacer, Table, Tooltip } from '@zeit-ui/react';
 import { useRouter } from 'next/router';
 import PlaylistChooser from '../components/playlist-chooser';
 import { createQueue } from '../utility/queue';
@@ -12,6 +12,7 @@ import {
   CheckCircle,
   CheckInCircle,
   Circle,
+  Download,
   XOctagon,
 } from '@zeit-ui/react-icons';
 import styles from '../styles/pages-transfer.module.scss';
@@ -75,16 +76,15 @@ export default function Transfer() {
   const importedPlaylist = importedPlaylists[selectedPlaylist];
   const playlistSelectedSongs = selectedSongs[selectedPlaylist] || {};
   const playlistSearchResults = searchResults[selectedPlaylist] || {};
-  const importedPlaylistKeys = Object.keys(importedPlaylist);
+  const importedPlaylistKeys = Object.keys(importedPlaylist).filter((id) => {
+    if (!importedPlaylist[id].title) {
+      return false;
+    } else {
+      return true;
+    }
+  });
   const spotifyPlaylistKeys = Object.keys(playlistSelectedSongs);
   const data = importedPlaylistKeys
-    .filter((id) => {
-      if (!importedPlaylist[id].title) {
-        return false;
-      } else {
-        return true;
-      }
-    })
     .map((id) => {
       if (isLoading || playlistSelectedSongs[id] != null) {
         const searchResults = playlistSearchResults[id];
@@ -166,10 +166,11 @@ export default function Transfer() {
       };
     })
     .sort((a, b) => {
-      console.log(a, b);
-      switch(sortColumn) {
+      switch (sortColumn) {
         case 'confidence':
-          return (a.confidence || 0) < (b.confidence || 0) ? 1 : -1;
+          return +(a.confidence?.replace('%', '') || 0) > +(b.confidence?.replace('%', '') || 0)
+            ? 1
+            : -1;
         case 'artist':
           return a.artist > b.artist ? 1 : -1;
         case 'album':
@@ -260,23 +261,32 @@ export default function Transfer() {
   let actionButton;
   if (isLoading) {
     actionButton = (
-      <Button type="success" loading style={{ margin: 'auto', display: 'block' }}></Button>
+      <Button type="success" style={{ margin: 'auto', display: 'block' }}>
+        {`${Object.keys(playlistSearchResults).length} / ${importedPlaylistKeys.length}`}
+        <Loading />
+      </Button>
     );
   } else if (spotifyPlaylistKeys.length) {
     actionButton = (
-      <Button
-        type="success-light"
-        onClick={uploadSpotifyPlaylist}
-        icon={
-          transferredPlaylists.indexOf(spotifyState.selectedPlaylist) >= 0 ? (
-            <CheckCircle />
-          ) : undefined
-        }
-        loading={isTransferringPlaylist}
-        style={{ margin: 'auto', display: 'block' }}
-      >
-        Transfer
-      </Button>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Button
+          type="success-light"
+          onClick={uploadSpotifyPlaylist}
+          icon={
+            transferredPlaylists.indexOf(spotifyState.selectedPlaylist) >= 0 ? (
+              <CheckCircle />
+            ) : undefined
+          }
+          loading={isTransferringPlaylist}
+          title="Transfer Playlist to Spotify"
+        >
+          Transfer
+        </Button>
+        <Spacer x={2} />
+        {/* <Button auto ghost type="secondary" size="small" style={{ display: 'flex' }} title="Download Playlist as CSV">
+          <Download />
+        </Button> */}
+      </div>
     );
   } else {
     actionButton = (
@@ -285,6 +295,7 @@ export default function Transfer() {
         type="success"
         onClick={createSpotifyPlaylist}
         style={{ margin: 'auto', display: 'block' }}
+        title="Convert GPM Songs to Spotify Songs"
       >
         Convert
       </Button>
@@ -328,17 +339,25 @@ export default function Transfer() {
         <Table data={data}>
           <Table.Column prop="status" label="" />
           <Table.Column prop="title">
-            <span className={styles.tableHeader} onClick={() => setSortColumn('title')}>{'Name'}</span>
+            <span className={styles.tableHeader} onClick={() => setSortColumn('title')}>
+              {'Name'}
+            </span>
           </Table.Column>
           <Table.Column prop="artist">
-            <span className={styles.tableHeader} onClick={() => setSortColumn('artist')}>{'Artist'}</span>
+            <span className={styles.tableHeader} onClick={() => setSortColumn('artist')}>
+              {'Artist'}
+            </span>
           </Table.Column>
           <Table.Column prop="album">
-            <span className={styles.tableHeader} onClick={() => setSortColumn('album')}>{'Album'}</span>
+            <span className={styles.tableHeader} onClick={() => setSortColumn('album')}>
+              {'Album'}
+            </span>
           </Table.Column>
           {!!spotifyPlaylistKeys.length && (
             <Table.Column prop="confidence">
-              <span className={styles.tableHeader} onClick={() => setSortColumn('confidence')}>{'Confidence'}</span>
+              <span className={styles.tableHeader} onClick={() => setSortColumn('confidence')}>
+                {'Confidence'}
+              </span>
             </Table.Column>
           )}
           <Table.Column prop="remove" label="" />
