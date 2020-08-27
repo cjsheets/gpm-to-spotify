@@ -4,6 +4,8 @@ This is a lightweight client side web application for transferring playlists fro
 
 To use this app, you need to manually export your playlists using Google Takeout (they come in CSV format). Instructions are provided in the app.
 
+Sample playlists are available in /public/SampleExport.zip
+
 ## Running locally
 
 You can use this app at [gpm-to-spotify.sheets.ch](https://gpm-to-spotify.sheets.ch) or you can run it locally.

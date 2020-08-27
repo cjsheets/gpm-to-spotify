@@ -27,6 +27,9 @@ export default function Transfer() {
   const { store: spotifyState, dispatch: spotifyDispatch } = spotifyContext;
   const { importedPlaylists, searchResults, selectedSongs, selectedPlaylist } = spotifyState;
 
+  const [sortColumn, setSortColumn] = useState<'title' | 'artist' | 'album' | 'confidence'>(
+    'title'
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [isTransferringPlaylist, setTransferringPlaylist] = useState(false);
   const [transferredPlaylists, setTransferredPlaylists] = useState<string[]>([]);
@@ -161,6 +164,21 @@ export default function Transfer() {
         status: null,
         ...importedPlaylist[id],
       };
+    })
+    .sort((a, b) => {
+      console.log(a, b);
+      switch(sortColumn) {
+        case 'confidence':
+          return (a.confidence || 0) < (b.confidence || 0) ? 1 : -1;
+        case 'artist':
+          return a.artist > b.artist ? 1 : -1;
+        case 'album':
+          return a.album > b.album ? 1 : -1;
+        case 'title':
+        default:
+          // a.title could be a react component
+          return importedPlaylist[a.id].title > importedPlaylist[b.id].title ? 1 : -1;
+      }
     });
 
   const createSpotifyPlaylist = () => {
@@ -309,10 +327,20 @@ export default function Transfer() {
 
         <Table data={data}>
           <Table.Column prop="status" label="" />
-          <Table.Column prop="title" label="Name" />
-          <Table.Column prop="artist" label="Artist" />
-          <Table.Column prop="album" label="Album" />
-          {!!spotifyPlaylistKeys.length && <Table.Column prop="confidence" label="Confidence" />}
+          <Table.Column prop="title">
+            <span className={styles.tableHeader} onClick={() => setSortColumn('title')}>{'Name'}</span>
+          </Table.Column>
+          <Table.Column prop="artist">
+            <span className={styles.tableHeader} onClick={() => setSortColumn('artist')}>{'Artist'}</span>
+          </Table.Column>
+          <Table.Column prop="album">
+            <span className={styles.tableHeader} onClick={() => setSortColumn('album')}>{'Album'}</span>
+          </Table.Column>
+          {!!spotifyPlaylistKeys.length && (
+            <Table.Column prop="confidence">
+              <span className={styles.tableHeader} onClick={() => setSortColumn('confidence')}>{'Confidence'}</span>
+            </Table.Column>
+          )}
           <Table.Column prop="remove" label="" />
         </Table>
       </div>
