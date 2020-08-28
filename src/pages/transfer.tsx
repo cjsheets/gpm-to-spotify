@@ -258,6 +258,52 @@ export default function Transfer() {
     setTransferringPlaylist(false);
   };
 
+  const downloadCsv = () => {
+    const csv = data.reduce((acc, song) => {
+      let str = `${importedPlaylist[song.id].title?.replace(/[,"]/g, '')}, ${song.artist?.replace(
+        /[,"]/g,
+        ''
+      )}, ${song.album?.replace(/[,"]/g, '')}`;
+      if (song.confidence) {
+        str += `,${song.confidence}`;
+      }
+      return acc + str + '\n';
+    }, '');
+    const blob = new Blob([decodeURIComponent('%ef%bb%bf') + csv], {
+      type: 'text/csv;charset=utf-8',
+    });
+    const blobUrl = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = blobUrl;
+    anchor.download = `${selectedPlaylist}.csv`;
+    document.body.appendChild(anchor);
+    anchor.dispatchEvent(
+      new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      })
+    );
+    document.body.removeChild(anchor);
+  };
+
+  const DownloadButton = () => (
+    <>
+      <Spacer x={2} />
+      <Button
+        auto
+        ghost
+        type="secondary"
+        size="small"
+        style={{ display: 'flex', alignItems: 'center' }}
+        title="Download Playlist as CSV"
+        onClick={downloadCsv}
+      >
+        <Download size={18} />
+      </Button>
+    </>
+  );
+
   let actionButton;
   if (isLoading) {
     actionButton = (
@@ -282,23 +328,22 @@ export default function Transfer() {
         >
           Transfer
         </Button>
-        <Spacer x={2} />
-        {/* <Button auto ghost type="secondary" size="small" style={{ display: 'flex' }} title="Download Playlist as CSV">
-          <Download />
-        </Button> */}
+        <DownloadButton />
       </div>
     );
   } else {
     actionButton = (
-      <Button
-        ghost
-        type="success"
-        onClick={createSpotifyPlaylist}
-        style={{ margin: 'auto', display: 'block' }}
-        title="Convert GPM Songs to Spotify Songs"
-      >
-        Convert
-      </Button>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Button
+          ghost
+          type="success"
+          onClick={createSpotifyPlaylist}
+          title="Convert GPM Songs to Spotify Songs"
+        >
+          Convert
+        </Button>
+        <DownloadButton />
+      </div>
     );
   }
 
