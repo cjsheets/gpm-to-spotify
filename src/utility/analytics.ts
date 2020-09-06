@@ -2,22 +2,24 @@ export const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_TRACKING_ID;
 
 declare global {
   interface Window {
-    gtag: any;
+    _paq: any;
   }
 }
 
 // https://developers.google.com/analytics/devguides/collection/gtagjs/pages
 export const pageview = (url: string) => {
-  window.gtag('config', GA_TRACKING_ID, {
-    page_path: url,
-  });
-};
+  window._paq.push(['setCustomUrl', url]);
+  window._paq.push(['setDocumentTitle', 'My New Title']);
 
-// https://developers.google.com/analytics/devguides/collection/gtagjs/events
-export const event = ({ action, category, label, value }: any) => {
-  window.gtag('event', action, {
-    event_category: category,
-    event_label: label,
-    value: value,
-  });
+  // remove all previously assigned custom variables, requires Matomo (formerly Piwik) 3.0.2
+  window._paq.push(['deleteCustomVariables', 'page']);
+  window._paq.push(['setGenerationTimeMs', 0]);
+  window._paq.push(['trackPageView']);
+
+  // make Matomo aware of newly added content
+  var content = document.getElementById('content');
+  window._paq.push(['MediaAnalytics::scanForMedia', content]);
+  window._paq.push(['FormAnalytics::scanForForms', content]);
+  window._paq.push(['trackContentImpressionsWithinNode', content]);
+  window._paq.push(['enableLinkTracking']);
 };
