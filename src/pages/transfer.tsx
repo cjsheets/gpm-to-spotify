@@ -11,7 +11,6 @@ import {
   AlertTriangleFill,
   CheckCircle,
   CheckInCircle,
-  Circle,
   Download,
   XOctagon,
 } from '@zeit-ui/react-icons';
@@ -35,7 +34,8 @@ export default function Transfer() {
   const [isTransferringPlaylist, setTransferringPlaylist] = useState(false);
   const [transferredPlaylists, setTransferredPlaylists] = useState<string[]>([]);
 
-  const queue = createQueue(3);
+  const searchSpotifyQueue = createQueue(4);
+  const addToPlaylistQueue = createQueue(1);
   const router = useRouter();
 
   useEffect(() => {
@@ -187,7 +187,7 @@ export default function Transfer() {
     importedPlaylistKeys
       .filter((id) => importedPlaylist[id].title)
       .forEach((id) => {
-        queue.push(() =>
+        searchSpotifyQueue.push(() =>
           spotifyState.spotifyApi
             .search(`track:${importedPlaylist[id].title}`, ['track'], { limit: 50 })
             .then((res) => {
@@ -239,7 +239,7 @@ export default function Transfer() {
             .catch(() => {})
         );
       });
-    queue.promise.then(() => {
+    searchSpotifyQueue.promise.then(() => {
       setIsLoading(false);
     });
   };
@@ -251,8 +251,17 @@ export default function Transfer() {
     });
 
     const uris = data.map((song) => song.uri as string).filter(Boolean);
+    let i = 0;
+    while (i < uris.length) {
+      // Spotify only allows adding 100 songs at a time
+      const subset = uris.slice(i, i + 90);
+      addToPlaylistQueue.push(() =>
+        spotifyState.spotifyApi.addTracksToPlaylist(playlist.id, subset)
+      );
+      i += 90;
+    }
 
-    await spotifyState.spotifyApi.addTracksToPlaylist(playlist.id, uris);
+    await addToPlaylistQueue.promise;
     transferredPlaylists.push(spotifyState.selectedPlaylist);
     setTransferredPlaylists(transferredPlaylists);
     setTransferringPlaylist(false);
