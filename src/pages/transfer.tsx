@@ -151,11 +151,16 @@ export default function Transfer() {
           </Tooltip>
         );
 
+        let playcount = importedPlaylist[id].playcount;
+        let playlistindex = importedPlaylist[id].playlistindex;
+
         return {
           id,
           status,
           ...selectedSong,
           title,
+          playcount,
+          playlistindex,
         };
       }
 
@@ -223,11 +228,13 @@ export default function Transfer() {
             .then((items) => {
               const songs = appendConfidenceLevel(
                 importedPlaylist[id],
-                items.map(({ uri, artists, album, name }) => ({
+                items.map(({ uri, artists, album, name, playcount, playlistindex }) => ({
                   uri,
                   artist: artists[0].name,
                   album: album.name,
                   title: name,
+                  playcount: playcount,
+                  playlistindex: playlistindex,
                 }))
               );
 

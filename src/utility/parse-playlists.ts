@@ -47,7 +47,7 @@ export function findAndParseCsvs(entry: any): Promise<any[]> {
                       entry.file((file: File) => {
                         parse(file, {
                           header: true,
-                          complete: (r) => {
+                          complete: (r: any) => {
                             // Reassign properties to names that don't contain spaces
                             // There's probably a better way to reference these columns in
                             // songArrayReducer which doesn't require this, but I don't know it.
