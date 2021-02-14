@@ -19,7 +19,7 @@ export function songArrayReducer(acc: any, next: any) {
     const playcount = parseInt(PlayCount);
     const playlistindex = parseInt(PlaylistIndex);
     if (!acc[playlistName]) {
-      acc[playlistName] = { 0: { album, artist, title, playcount } };
+      acc[playlistName] = { 0: { album, artist, title, playcount, playlistindex } };
     } else {
       const numSongs = Object.keys(acc[playlistName]).length;
       acc[playlistName][numSongs] = { album, artist, title, playcount, playlistindex };
