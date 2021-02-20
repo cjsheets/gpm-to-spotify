@@ -27,9 +27,9 @@ export default function Transfer() {
   const { store: spotifyState, dispatch: spotifyDispatch } = spotifyContext;
   const { importedPlaylists, searchResults, selectedSongs, selectedPlaylist } = spotifyState;
 
-  const [sortColumn, setSortColumn] = useState<'title' | 'artist' | 'album' | 'playcount' | 'playlistindex' | 'confidence'>(
-    'title'
-  );
+  const [sortColumn, setSortColumn] = useState<
+    'title' | 'artist' | 'album' | 'playcount' | 'playlistindex' | 'confidence'
+  >('title');
   const [isLoading, setIsLoading] = useState(false);
   const [isTransferringPlaylist, setTransferringPlaylist] = useState(false);
   const [transferredPlaylists, setTransferredPlaylists] = useState<string[]>([]);
@@ -228,7 +228,7 @@ export default function Transfer() {
             .then((items) => {
               const songs = appendConfidenceLevel(
                 importedPlaylist[id],
-                items.map(({ uri, artists, album, name, playcount, playlistindex }) => ({
+                (items as any[]).map(({ uri, artists, album, name, playcount, playlistindex }) => ({
                   uri,
                   artist: artists[0].name,
                   album: album.name,
