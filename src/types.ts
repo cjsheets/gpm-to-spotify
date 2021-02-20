@@ -22,6 +22,8 @@ export type Song = {
   title: string;
   confidence?: string;
   uri?: string;
+  playcount: number;
+  playlistindex: number;
 };
 
 export type Playlist = { [importId: string]: Song };

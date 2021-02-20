@@ -27,9 +27,9 @@ export default function Transfer() {
   const { store: spotifyState, dispatch: spotifyDispatch } = spotifyContext;
   const { importedPlaylists, searchResults, selectedSongs, selectedPlaylist } = spotifyState;
 
-  const [sortColumn, setSortColumn] = useState<'title' | 'artist' | 'album' | 'confidence'>(
-    'title'
-  );
+  const [sortColumn, setSortColumn] = useState<
+    'title' | 'artist' | 'album' | 'playcount' | 'playlistindex' | 'confidence'
+  >('title');
   const [isLoading, setIsLoading] = useState(false);
   const [isTransferringPlaylist, setTransferringPlaylist] = useState(false);
   const [transferredPlaylists, setTransferredPlaylists] = useState<string[]>([]);
@@ -151,11 +151,16 @@ export default function Transfer() {
           </Tooltip>
         );
 
+        let playcount = importedPlaylist[id].playcount;
+        let playlistindex = importedPlaylist[id].playlistindex;
+
         return {
           id,
           status,
           ...selectedSong,
           title,
+          playcount,
+          playlistindex,
         };
       }
 
@@ -175,6 +180,10 @@ export default function Transfer() {
           return a.artist > b.artist ? 1 : -1;
         case 'album':
           return a.album > b.album ? 1 : -1;
+        case 'playlistindex':
+          return a.playlistindex > b.playlistindex ? 1 : -1;
+        case 'playcount':
+          return a.playcount < b.playcount ? 1 : -1;
         case 'title':
         default:
           // a.title could be a react component
@@ -219,11 +228,13 @@ export default function Transfer() {
             .then((items) => {
               const songs = appendConfidenceLevel(
                 importedPlaylist[id],
-                items.map(({ uri, artists, album, name }) => ({
+                (items as any[]).map(({ uri, artists, album, name, playcount, playlistindex }) => ({
                   uri,
                   artist: artists[0].name,
                   album: album.name,
                   title: name,
+                  playcount: playcount,
+                  playlistindex: playlistindex,
                 }))
               );
 
@@ -405,6 +416,16 @@ export default function Transfer() {
           <Table.Column prop="album">
             <span className={styles.tableHeader} onClick={() => setSortColumn('album')}>
               {'Album'}
+            </span>
+          </Table.Column>
+          <Table.Column prop="playcount">
+            <span className={styles.tableHeader} onClick={() => setSortColumn('playcount')}>
+              {'Play Count'}
+            </span>
+          </Table.Column>
+          <Table.Column prop="playlistindex">
+            <span className={styles.tableHeader} onClick={() => setSortColumn('playlistindex')}>
+              {'Playlist Index'}
             </span>
           </Table.Column>
           {!!spotifyPlaylistKeys.length && (
